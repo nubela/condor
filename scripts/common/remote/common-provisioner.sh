@@ -71,7 +71,8 @@ install_k8(){
 	apt-mark hold kubelet kubeadm kubectl
 
 	cat <<-EOF > /etc/default/kubelet
-		KUBELET_EXTRA_ARGS="--cloud-provider=external"
+		KUBELET_EXTRA_ARGS="--cloud-provider=external --allowed-unsafe-sysctls=\
+		"kernel.msg*,net.core.*,net.ipv4.*,net.netfilter.nf_conntrack_max,fs.file-max"
 		EOF
 }
 
@@ -110,10 +111,41 @@ clean(){
 	rm -f /tmp/common-provisioner.sh
 }
 
+tweak_sysctl(){
+	sysctl -w fs.file-max=2097152
+	sysctl -w vm.swappiness=10
+	sysctl -w vm.dirty_ratio=60
+	sysctl -w vm.dirty_background_ratio=2
+	sysctl -w net.ipv4.tcp_synack_retries=2
+	sysctl -w net.ipv4.tcp_rfc1337=1
+	sysctl -w net.ipv4.tcp_fin_timeout=15
+	sysctl -w net.ipv4.tcp_keepalive_time=300
+	sysctl -w net.ipv4.tcp_keepalive_probes=5
+	sysctl -w net.ipv4.tcp_keepalive_intvl=15
+	sysctl -w net.core.rmem_max=12582912
+	sysctl -w net.core.wmem_default=31457280
+	sysctl -w net.core.wmem_max=12582912
+	sysctl -w net.core.somaxconn=65535
+	sysctl -w net.core.netdev_max_backlog=65535
+	sysctl -w net.core.optmem_max=25165824
+	sysctl -w net.ipv4.udp_rmem_min=16384
+	sysctl -w net.ipv4.udp_wmem_min=16384
+	sysctl -w net.ipv4.tcp_max_tw_buckets=1440000
+	sysctl -w net.ipv4.tcp_tw_reuse=1
+	sysctl -w net.ipv4.ip_forward=1
+	sysctl -w net.netfilter.nf_conntrack_max=2097152
+	echo "* soft nofile 400000" >> /etc/security/limits.conf
+	echo "* hard nofile 400000" >> /etc/security/limits.conf
+	echo "root soft nofile 400000" >> /etc/security/limits.conf
+	echo "root hard nofile 400000" >> /etc/security/limits.conf
+	ulimit -n 400000
+}
+
 main(){
 	pre_dependencies
 
 	network_config
+	tweak_sysctl
 	install_k8
 	install_docker
 	clean
