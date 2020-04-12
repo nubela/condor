@@ -71,8 +71,7 @@ install_k8(){
 	apt-mark hold kubelet kubeadm kubectl
 
 	cat <<-EOF > /etc/default/kubelet
-		KUBELET_EXTRA_ARGS="--cloud-provider=external --allowed-unsafe-sysctls=\
-		"kernel.msg*,net.core.*,net.ipv4.*,net.netfilter.nf_conntrack_max,fs.file-max"
+		KUBELET_EXTRA_ARGS="--cloud-provider=external --allowed-unsafe-sysctls='kernel.msg*,net.core.*,net.ipv4.*,net.netfilter.nf_conntrack_max,fs.file-max'"
 		EOF
 }
 
