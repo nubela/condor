@@ -28,12 +28,12 @@ variable "controller_count" {
 
 variable "worker_count" {
   type    = number
-  default = 3
+  default = 1
 }
 
 variable "controller_plan" {
   type    = string
-  default = "8192 MB RAM,160 GB SSD,4.00 TB BW"
+  default = "4096 MB RAM,80 GB SSD,3.00 TB BW"
 }
 
 variable "worker_plan" {
@@ -68,5 +68,5 @@ variable "containerd_release" {
 
 variable "pod_network_cidr" {
   type    = string
-  default = "10.244.0.0/16" 
+  default = "10.244.0.0/16"
 }
